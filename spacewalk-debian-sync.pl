@@ -12,6 +12,7 @@
 # Changelog:
 # 20130204 - Initial release
 # 20130215 - Fix for downloading security repository
+# 20130216 - Fix for downloading from snapshot.debian.org
 #
 # Here are some sample URLs:
 #
@@ -66,6 +67,13 @@ if ($url =~ /(.*debian\/)/) {
 if ($url =~ /security\.debian\.org\//) {
   $debianroot = "http://security.debian.org/";
   &info("Repo URL: $url\n");  
+  &info("Debian root is $debianroot\n");
+}
+
+# snapshot.debian.org handling
+if ($url =~ /(.*\d{8}T\d{6}Z\/)/) {
+  $debianroot = $1;
+  &info("Repo URL: $url\n");
   &info("Debian root is $debianroot\n");
 }
 
