@@ -11,6 +11,7 @@
 #
 # Changelog:
 # 20130204 - Initial release
+# 20130215 - Fix for downloading security repository
 #
 # Here are some sample URLs:
 #
@@ -19,6 +20,9 @@
 #
 # squeeze (Debian 6) Updates for i386
 # -> http://ftp.debian.org/debian/dists/squeeze-updates/main/binary-i386/
+#
+# squeeze (Debian 6) Security for i386
+# -> http://security.debian.org/dists/squeeze/updates/main/binary-i386/
 #
 # Replace for i386 with amd64 for 64-bit (x86_64 in CentOS/RHEL)
 # Besides main/ there are also contrib/ and non-free/ which you might
@@ -45,7 +49,7 @@ my (%inrepo, %inchannel);
 my ($synced, $tosync);
 my %download;
 
-$getopt = GetOptions( 'url=s'  	=> \$url,
+$getopt = GetOptions( 'url=s'  		=> \$url,
                       'channel=s'	=> \$channel,
 		      'username=s'	=> \$username,
 		      'password=s'	=> \$password
@@ -55,7 +59,16 @@ if ($url =~ /(.*debian\/)/) {
   $debianroot = $1;
   &info("Repo URL: $url\n");
   &info("Debian root is $debianroot\n");
-} else {
+} 
+
+if ($url =~ /security\.debian\.org\//) {
+  $debianroot = "http://security.debian.org/";
+  &info("Repo URL: $url\n");  
+  &info("Debian root is $debianroot\n");
+}
+
+# Abort if we don't know the root
+if (not(defined($debianroot))) {
   &error("ERROR: Could not find Debian root directory\n");
   exit(1);
 }
@@ -135,6 +148,7 @@ foreach $_ (keys %download) {
   $mech->get("$debianroot/$download{$_}", ':content_file' => "/tmp/$_");
   if ($mech->success) {
     system("rhnpush -c $channel -u $username -p $password /tmp/$_");
+    if ($? > 0) { die "ERROR: rhnpush failed\n"; }
   }
   unlink("/tmp/$_");
 }
