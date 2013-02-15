@@ -55,12 +55,14 @@ $getopt = GetOptions( 'url=s'  		=> \$url,
 		      'password=s'	=> \$password
 		    );
 
+# Debian mirrors store data under /debian/
 if ($url =~ /(.*debian\/)/) {
   $debianroot = $1;
   &info("Repo URL: $url\n");
   &info("Debian root is $debianroot\n");
 } 
 
+# security.debian.org has no /debian/ directory
 if ($url =~ /security\.debian\.org\//) {
   $debianroot = "http://security.debian.org/";
   &info("Repo URL: $url\n");  
@@ -116,7 +118,6 @@ $tosync = 0;
 $synced = 0;
 foreach $package (split(/\n\n/, $packages)) {
   foreach $_ (split(/\n/, $package)) {
-#   if (/^Package: (.*)$/)  { $pkgname = $1; };
     if (/^Filename: (.*)$/) { $fileurl = $1; };
     if (/^MD5sum: (.*)$/)   { $md5     = $1; };
     if (/^SHA1: (.*)$/)     { $sha1    = $1; };
