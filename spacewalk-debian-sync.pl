@@ -56,6 +56,13 @@ $getopt = GetOptions( 'url=s'  		=> \$url,
 		      'password=s'	=> \$password
 		    );
 
+# Ubuntu mirrors store data under /ubuntu/
+if ($url =~ /(.*ubuntu\/)/) {
+  $debianroot = $1;
+  &info("Repo URL: $url\n");
+  &info("Ubuntu root is $debianroot\n");
+}
+
 # Debian mirrors store data under /debian/
 if ($url =~ /(.*debian\/)/) {
   $debianroot = $1;
