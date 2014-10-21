@@ -164,7 +164,7 @@ foreach $_ (keys %download) {
   $mech->get("$debianroot/$download{$_}", ':content_file' => "/tmp/$_");
   if ($mech->success) {
     system("rhnpush -c $channel -u $username -p $password /tmp/$_");
-    if ($? > 0) { die "ERROR: rhnpush failed\n"; }
+    if ($? > 0) { print "ERROR: rhnpush failed to add package $_\n"; }
   }
   unlink("/tmp/$_");
 }
