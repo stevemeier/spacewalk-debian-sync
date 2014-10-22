@@ -13,11 +13,11 @@ Sync tool supporting at the systems:
 Usage: perl spacewalk-debian-sync [options]
 -------------------------------------------
 
---username 'User admin to system spacewalk'
+--username 'user'
 
---password 'Pass admin spacewalk'
+--password 'pass'
 
 --channel 'channel-example'
 
---url 'http://example.debian.com/debian/dists/wheezy/main/binary-amd64'
+--url 'http://example.linux.com/linux/dists/version/main/binary-amd64'
 
