@@ -63,6 +63,13 @@ if ($url =~ /(.*ubuntu\/)/) {
   &info("Ubuntu root is $debianroot\n");
 }
 
+# Ubuntu Zentyal mirrors store data under /zentyal/
+if ($url =~ /(.*zentyal\/)/) {
+  $debianroot = $1;
+  &info("Repo URL: $url\n");
+  &info("Ubuntu Zentyal root is $debianroot\n");
+}
+
 # Debian mirrors store data under /debian/
 if ($url =~ /(.*debian\/)/) {
   $debianroot = $1;
