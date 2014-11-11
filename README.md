@@ -21,3 +21,7 @@ Usage: perl spacewalk-debian-sync [options]
 
 --url 'http://example.linux.com/linux/dists/version/main/binary-amd64'
 
+spacewalk-cron
+==============
+An script cron to sync repositories from ubuntu and zentyal.
+
