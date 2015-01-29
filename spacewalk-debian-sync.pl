@@ -63,6 +63,13 @@ if ($url =~ /(.*ubuntu\/)/) {
   &info("Ubuntu root is $debianroot\n");
 }
 
+# Ubuntu Zentyal mirrors store data under /zentyal/
+if ($url =~ /(.*zentyal\/)/) {
+  $debianroot = $1;
+  &info("Repo URL: $url\n");
+  &info("Ubuntu Zentyal root is $debianroot\n");
+}
+
 # Debian mirrors store data under /debian/
 if ($url =~ /(.*debian\/)/) {
   $debianroot = $1;
@@ -115,6 +122,7 @@ $client->call('auth.logout', $session);
 
 # Download Packages.gz (why does this fail on some mirrors? HTTP deflate maybe?)
 $mech = WWW::Mechanize->new;
+$mech->env_proxy();
 print "INFO: Fetching Packages.gz... ";
 $mech->get("$url/Packages.gz");
 print "done\n";
@@ -164,7 +172,7 @@ foreach $_ (keys %download) {
   $mech->get("$debianroot/$download{$_}", ':content_file' => "/tmp/$_");
   if ($mech->success) {
     system("rhnpush -c $channel -u $username -p $password /tmp/$_");
-    if ($? > 0) { die "ERROR: rhnpush failed\n"; }
+    if ($? > 0) { print "ERROR: rhnpush failed to add package $_\n"; }
   }
   unlink("/tmp/$_");
 }
