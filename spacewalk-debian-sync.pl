@@ -122,6 +122,7 @@ $client->call('auth.logout', $session);
 
 # Download Packages.gz (why does this fail on some mirrors? HTTP deflate maybe?)
 $mech = WWW::Mechanize->new;
+$mech->env_proxy();
 print "INFO: Fetching Packages.gz... ";
 $mech->get("$url/Packages.gz");
 print "done\n";
