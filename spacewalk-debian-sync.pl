@@ -44,7 +44,7 @@ my $debug = 0;
 my ($getopt, $url, $channel, $username, $password, $debianroot);
 my $mech;
 my ($packages, $package);
-my ($pkgname, $fileurl, $md5, $sha1, $sha256);
+my ($pkgname, $fileurl, $md5, $sha1, $sha256, $m_arch, $arch, $version);
 my ($client, $session, $allpkg);
 my (%inrepo, %inchannel);
 my ($synced, $tosync);
@@ -131,19 +131,34 @@ $packages = Compress::Zlib::memGunzip($mech->content())
 # Parse uncompressed Packages.gz
 $tosync = 0;
 $synced = 0;
+
+# open temporary file to store,
+# package name|multi-arch|channel
+if(! open(MULTI, '>', "/tmp/$channel")) {
+  printf STDERR "Sorry...cannot log multi-arch values.";
+}
 foreach $package (split(/\n\n/, $packages)) {
+  ($fileurl, $md5, $sha1, $sha256, $pkgname, $m_arch, $arch, $version) = (undef, '', '', '', undef, undef, undef, undef);
   foreach $_ (split(/\n/, $package)) {
     if (/^Filename: (.*)$/) { $fileurl = $1; };
     if (/^MD5sum: (.*)$/)   { $md5     = $1; };
     if (/^SHA1: (.*)$/)     { $sha1    = $1; };
     if (/^SHA256: (.*)$/)   { $sha256  = $1; };
+    if (/^Package: (.*)$/)  { $pkgname = $1; };
+    if (/^Multi-Arch: (.*)$/) { $m_arch = $1; };
+    if (/^Version: (.*)$/)  { $version = $1; };
+    if (/^Architecture: (.*)$/)  { $arch = $1; };
+  }
+  
+  if(defined($m_arch)) {
+    printf MULTI "%s %s %s %s\n", $pkgname, $version, $arch, $m_arch;
   }
   $inrepo{basename($fileurl)} = $fileurl;
   &debug("Package ".basename($fileurl)." at $fileurl\n");
 
-  if ( (not(defined($inchannel{$md5}))) &&
-       (not(defined($inchannel{$sha1}))) &&
-       (not(defined($inchannel{$sha256}))) ) {
+  if ( (not(exists($inchannel{$md5}))) &&
+       (not(exists($inchannel{$sha1}))) &&
+       (not(exists($inchannel{$sha256}))) ) {
     $download{basename($fileurl)} = $fileurl;
     $tosync++;
     &debug(basename($fileurl)." needs to be synced\n");
@@ -151,6 +166,7 @@ foreach $package (split(/\n\n/, $packages)) {
     $synced++;
   }
 }
+close(MULTI);
 &info("Packages in repo:\t\t".scalar(keys %inrepo)."\n");
 &info("Packages already synced:\t$synced\n");
 &info("Packages to sync:\t\t$tosync\n");
